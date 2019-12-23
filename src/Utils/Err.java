@@ -54,4 +54,8 @@ public class Err<V, E> implements Result<V, E> {
     public <R> Result<R, E> and_then(Function<? super V, ? extends Result<R, E>> f) {
         return new Err<R, E>(this.err);
     }
+
+    public String toString() {
+        return "{status='failed', reason='" + err + "'}";
+    }
 }

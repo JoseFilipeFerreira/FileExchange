@@ -5,7 +5,6 @@ import Utils.Result;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 class Server {
@@ -26,9 +25,10 @@ class Server {
     }
 
     Result<User, String> check_login(String name, String passwd) {
-        Result<User, String> user = Result.of_nullable(this.users.get(name), "Invalid User");
-        Result <Boolean, String> pass = user.map(x -> x.checkPasswd(passwd));
-        return pass.is_ok() ? user : user.map_err(x -> "Invalid Passwd");
+        return Result.of_nullable(this.users.get(name), "Invalid User")
+                .and_then(x -> x.checkPasswd(passwd)
+                        ? Result.Ok(x)
+                        : Result.Err("Invalid Passwd"));
     }
 
     List<Music> search_tags(String tag) {

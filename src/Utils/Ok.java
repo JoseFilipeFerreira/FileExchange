@@ -54,4 +54,8 @@ public class Ok<V, E> implements Result<V, E> {
     public <R> Result<R, E> and_then(Function<? super V, ? extends Result<R, E>> f) {
         return f.apply(this.value);
     }
+
+    public String toString() {
+        return "{status='ok', result='" + value + "'}";
+    }
 }

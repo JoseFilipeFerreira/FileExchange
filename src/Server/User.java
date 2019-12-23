@@ -17,13 +17,14 @@ class User {
         return this.passwd.equals(passwd);
     }
 
-    String Serialize() {
-        return "User:name='" + this.name
-                + "':passwd='" + this.passwd + "';";
+    public String toString() {
+        return "User{name='" + this.name
+                + "':passwd='" + this.passwd + "'}";
     }
 
-    static Optional<Object> deserialize(String s) {
-        Pattern regexr = Pattern.compile("User:name='(?<name>\\w)':passwd='(?<passwd>\\w)';");
+    static Optional<Object> from_string(String s) {
+        Pattern regexr = Pattern.compile("User\\{name='(?<name>\\w)'" +
+                                                 ":passwd='(?<passwd>\\w)'}");
         Matcher e = regexr.matcher(s);
         if(e.matches())
             return Optional.of(new User(e.group("name"), e.group("passwd")));

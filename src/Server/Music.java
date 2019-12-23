@@ -57,20 +57,22 @@ class Music {
         return this.tags.contains(tag);
     }
 
-    public String serialize() {
+    public String toString() {
         String all_tags = "";
         for(String tag: this.tags)
             all_tags += "'" + tag + "',";
-        return "Music:id='" + this.id
+        return "Music{id='" + this.id
                 + "':artist='" + this.artist
                 + "':year='" + this.year
-                + "':tags=[" + all_tags + "];";
+                + "':tags=[" + all_tags + "]}";
     }
 
-    static Result<Music, String> deserialize() {
-        Pattern regexr = Pattern.compile("Music:title='(?<title>.*)':artist='(?<artist>.*)':year=(?<year>[0-9]{4})" +
-                                                 ":tags=\\[(?<tags>.*)];");
-        Matcher e = regexr.matcher("Music:title='oooo':artist='reee':year=2000:tags=['asdjiow','qiodj',];");
+    static Result<Music, String> from_string(String s) {
+        Pattern regexr = Pattern.compile("Music\\{title='(?<title>.*)'" +
+                                                 ":artist='(?<artist>.*)'" +
+                                                 ":year=(?<year>[0-9]{4})" +
+                                                 ":tags=\\[(?<tags>.*)]}");
+        Matcher e = regexr.matcher(s);
         System.out.println(e.matches());
         if(e.matches()) {
             String tags = e.group("tags");
@@ -81,7 +83,7 @@ class Music {
                 tag.add(o.group(1));
             return Result.Ok(new Music(e.group("title"),
                                          e.group("artist"),
-                                         Year.parse(e.group("artist")),
+                                         Year.parse(e.group("year")),
                                          tag));
         }
         return Result.Err("Invalid Format String");
