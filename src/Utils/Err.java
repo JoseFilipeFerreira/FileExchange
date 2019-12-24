@@ -56,6 +56,6 @@ public class Err<V, E> implements Result<V, E> {
     }
 
     public String toString() {
-        return "{status='failed', reason='" + err + "'}";
+        return "{status='failed', result='" + err + "'}";
     }
 }
