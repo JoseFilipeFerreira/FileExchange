@@ -5,10 +5,7 @@ import Utils.Result;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 class Music {
     private long id;
@@ -68,16 +65,10 @@ class Music {
     }
 
     static Result<Music, String> from_string(String s) {
-        Pattern regexr = Pattern.compile("Music\\{title='(?<title>.*)'" +
-                                                 ":artist='(?<artist>.*)'" +
-                                                 ":year=(?<year>[0-9]{4})" +
-                                                 ":tags=\\[(?<tags>.*)]}");
-        Matcher e = regexr.matcher(s);
-        System.out.println(e.matches());
+        Matcher e = ParserPatterns.music.matcher(s);
         if(e.matches()) {
             String tags = e.group("tags");
-            regexr = Pattern.compile("'(\\w*)',");
-            Matcher o = regexr.matcher(tags);
+            Matcher o = ParserPatterns.list_content.matcher(tags);
             List<String> tag = new ArrayList<>();
             while(o.find())
                 tag.add(o.group(1));
@@ -86,7 +77,7 @@ class Music {
                                          Year.parse(e.group("year")),
                                          tag));
         }
-        return Result.Err("Invalid Format String");
+        return Result.Err("Invalid Format Music");
     }
 
     public boolean equals(Object o) {

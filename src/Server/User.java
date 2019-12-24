@@ -1,8 +1,8 @@
 package Server;
 
-import java.util.Optional;
+import Utils.Result;
+
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 class User {
     private String name;
@@ -13,8 +13,12 @@ class User {
         this.passwd = passwd;
     }
 
-    boolean checkPasswd(String passwd) {
+    boolean check_passwd(String passwd) {
         return this.passwd.equals(passwd);
+    }
+
+    String get_name() {
+        return this.name;
     }
 
     public String toString() {
@@ -22,12 +26,18 @@ class User {
                 + "':passwd='" + this.passwd + "'}";
     }
 
-    static Optional<Object> from_string(String s) {
-        Pattern regexr = Pattern.compile("User\\{name='(?<name>\\w)'" +
-                                                 ":passwd='(?<passwd>\\w)'}");
-        Matcher e = regexr.matcher(s);
+    static Result<User, String> from_string(String s) {
+        Matcher e = ParserPatterns.user.matcher(s);
         if(e.matches())
-            return Optional.of(new User(e.group("name"), e.group("passwd")));
-        return Optional.empty();
+            return Result.Ok(new User(e.group("name"), e.group("passwd")));
+        return Result.Err("Invalid user format");
+    }
+
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return user.name.equals(name) &&
+                user.passwd.equals(passwd);
     }
 }
