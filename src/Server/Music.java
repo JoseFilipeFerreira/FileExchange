@@ -30,6 +30,9 @@ class Music {
         this.downloads++;
     }
 
+    String get_path() {
+        return ".media/" + this.id;
+    }
     long get_id() {
         return this.id;
     }
