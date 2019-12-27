@@ -1,0 +1,4 @@
+{type='add_user', content=['User{name='ree':passwd='ooo'}',]}
+{type='login', content=['User{name='ree':passwd='ooo'}',]}
+{type='add_music', content=['Music{title='pppp':artist='manuel':year=2000:tags=['ola','adeus',]}',]}
+{type='search', content=['ola',]}
