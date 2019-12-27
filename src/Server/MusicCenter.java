@@ -8,10 +8,12 @@ import java.util.Map;
 class MusicCenter {
     private Map<Long, Music> musics;
     private Map<String, User> users;
+    private NotificationCenter notify;
 
-    MusicCenter() {
+    MusicCenter(NotificationCenter n) {
         this.musics = new HashMap<>();
         this.users = new HashMap<>();
+        this.notify = n;
     }
 
     Result<User, String> create_user(User u) {
@@ -44,6 +46,7 @@ class MusicCenter {
         if(this.musics.containsValue(a))
             return Result.Err("Music already exists");
         this.musics.put(a.get_id(), a);
+        this.notify.notify(a);
         return Result.Ok(a);
     }
 }
