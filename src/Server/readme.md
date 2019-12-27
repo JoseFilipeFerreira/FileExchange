@@ -31,7 +31,8 @@ Uploading music to the server can be done with the request
 
 ```{type='add_music', content=['Music{title='$TITLE':artist='$ARTIST':year=$YEAR:tags=['$TAG1','$TAG2',]}',]}```
 
-by replacing the music title, artist, year and list of tags in the correspondent place
+by replacing the music title, artist, year and list of tags in the correspondent place.
+After the request, the server will be waiting for the file content
 
 ### Searching
 
