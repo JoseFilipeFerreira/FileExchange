@@ -1,9 +1,14 @@
 package Server;
 
+import Utils.Defaults;
 import Utils.Result;
 
+import java.awt.*;
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -29,12 +34,20 @@ public class ServerThread implements Runnable {
                 case "add_music":
                     Result<Music, String> m = Music.from_string(contents.get(0))
                             .and_then(musicCenter::upload_music);
-//                    if(m.is_err())
-//                        return m.toString();
-//                    Music music = m.unwrap();
-//                    byte[] fContent = new byte[4096];
-////                    FileOutputStream
-//                    for(int i = 0; in.read(fContent, 0, 4096) > 0; i++)
+                    if(m.is_err())
+                        return m.toString();
+                    Music music = m.unwrap();
+                    byte[] fContent = new byte[Defaults.MAXSIZE];
+                    Path newer = Paths.get(".media");
+                    if (Files.notExists(newer)) {
+                        Files.createDirectory(newer);
+                    }
+                    File file = newer.resolve(String.valueOf(music.get_id())).toFile();
+                    FileOutputStream f = new FileOutputStream(file, true);
+                    for(int i = 0; in.read(fContent, 0, Defaults.MAXSIZE) > 0; i++)
+                        f.write(fContent);
+                    f.flush();
+                    f.close();
                     return m.toString();
                 case "add_user":
                     return User.from_string(contents.get(0))
