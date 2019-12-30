@@ -51,6 +51,10 @@ public class Ok<V, E> implements Result<V, E> {
         return this.value;
     }
 
+    public E unwrap_err() {
+        return null;
+    }
+
     public <R> Result<R, E> and_then(Function<? super V, ? extends Result<R, E>> f) {
         return f.apply(this.value);
     }

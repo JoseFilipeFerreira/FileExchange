@@ -37,5 +37,7 @@ public interface Result<V, E> {
 
     V unwrap();
 
+    E unwrap_err();
+
     <R> Result<R, E> and_then(Function<? super V, ? extends Result<R, E>> f);
 }
