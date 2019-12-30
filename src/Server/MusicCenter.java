@@ -48,7 +48,6 @@ class MusicCenter {
         }
     }
 
-    //TODO Some nice file managment
     Result<Long, String> upload_music(Music a) {
         synchronized(this.musics) {
             if(this.musics.containsValue(a))
