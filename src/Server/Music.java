@@ -1,5 +1,6 @@
 package Server;
 
+import Utils.ParserPatterns;
 import Utils.Result;
 
 import java.time.Year;
@@ -15,10 +16,10 @@ class Music {
     private List<String> tags;
     private long downloads;
 
-    private static long last_id = 0;
+    private static Counter last_id = new Counter();
 
     Music(String title, String artist, Year year, List<String> tags) {
-        this.id = last_id++;
+        this.id = last_id.increment();
         this.title = title;
         this.artist = artist;
         this.year = year;
@@ -26,13 +27,14 @@ class Music {
         this.downloads = 0;
     }
 
-    void download() {
+    synchronized void download() {
         this.downloads++;
     }
 
     String get_path() {
         return ".media/" + this.id;
     }
+
     long get_id() {
         return this.id;
     }
