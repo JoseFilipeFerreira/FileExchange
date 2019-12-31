@@ -57,4 +57,11 @@ class MusicCenter {
         this.notify.notify(a);
         return Result.Ok(a.get_id());
     }
+
+    Result<Music, String> download(long id) {
+        synchronized(this.musics) {
+            return Result.of_nullable(this.musics.get(id), "Invalid Music")
+                    .also(Music::download);
+        }
+    }
 }

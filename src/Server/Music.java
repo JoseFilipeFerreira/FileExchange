@@ -14,7 +14,7 @@ class Music {
     private String artist;
     private Year year;
     private List<String> tags;
-    private long downloads;
+    private Counter downloads;
 
     private static Counter last_id = new Counter();
 
@@ -24,11 +24,11 @@ class Music {
         this.artist = artist;
         this.year = year;
         this.tags = tags;
-        this.downloads = 0;
+        this.downloads = new Counter();
     }
 
-    synchronized void download() {
-        this.downloads++;
+    void download() {
+        this.downloads.increment();
     }
 
     String get_path() {
@@ -64,9 +64,11 @@ class Music {
         for(String tag: this.tags)
             all_tags += "'" + tag + "',";
         return "Music{id='" + this.id
+                + "':title='" + this.title
                 + "':artist='" + this.artist
-                + "':year='" + this.year
-                + "':tags=[" + all_tags + "]}";
+                + "':year=" + this.year
+                + ":downloads=" + this.downloads.value()
+                + ":tags=[" + all_tags + "]}";
     }
 
     static Result<Music, String> from_string(String s) {

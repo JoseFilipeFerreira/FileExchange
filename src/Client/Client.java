@@ -25,6 +25,7 @@ public class Client {
     private UpldQueue queue;
     private PrintWriter out;
     private BufferedReader in;
+    private DwnlThread dl;
 
     Client(ServerSocket file_transfer, int port) {
         try {
@@ -40,18 +41,21 @@ public class Client {
             out.println("{type='connect', content=['" + port + "',]}");
             out.flush();
 
-            System.out.println(in.readLine());
+            in.readLine();
             this.file_transfer = file_transfer.accept();
 
             this.queue = new UpldQueue(this.file_transfer.getOutputStream());
             new Thread(this.queue).start();
+
+            this.dl = new DwnlThread(this.file_transfer.getInputStream());
+            new Thread(this.dl).start();
         } catch (IOException ignored){}
     }
 
     Result<String, String> format(String[] splits) {
         switch(splits[0]) {
             case "download":
-                if(splits.length != 2 || Pattern.matches("[0-9].*", splits[1])) break;
+                if(splits.length != 2 || !Pattern.matches("[0-9].*", splits[1])) break;
                 return Result.Ok("{type='download', content=['" + splits[1] + "',]}");
             case "add_music":
                 if(splits.length != 6) break;
@@ -69,7 +73,43 @@ public class Client {
                 return Result.Ok("{type='search', content=['" + splits[1] + "',]}");
 
         }
-        return Result.Err("Wrong format request");
+        return Result.Err("Error: Wrong format request");
+    }
+
+    void format_output(String output, String type) {
+        Matcher out = ParserPatterns.replies.matcher(output);
+        out.matches();
+        if(out.group("status").equals("failed"))
+            System.out.println("Error: " + out.group("result"));
+        else {
+            switch(type) {
+                case "add_music":
+                    System.out.println("New music added: " + out.group("result"));
+                    break;
+                case "login":
+                    System.out.println("User logged: " + out.group("result"));
+                    break;
+                case "add_user":
+                    System.out.println("User added: " + out.group("result"));
+                    break;
+                case "download":
+                    System.out.println("Music " + out.group("result") + " was added to your download queue");
+                    break;
+                case "search":
+                    Matcher content = ParserPatterns.list_objetcs.matcher(out.group("result"));
+                    while(content.find()) {
+                        Matcher music = ParserPatterns.complete_music.matcher(content.group(1));
+                        if(music.matches())
+                            System.out.println("Id: " + music.group("id")
+                                                       + ", Title: " + music.group("title")
+                                                       + ", Artist: " + music.group("artist")
+                                                       + ", Year: " + music.group("year")
+                                                       + ", Downloads: " + music.group("downloads")
+                                                       + ", Tags: " + music.group("tags"));
+                    }
+                    break;
+            }
+        }
     }
 
     void handle_input(String user_input) throws IOException {
@@ -89,8 +129,9 @@ public class Client {
                     read = in.readLine();
                     Matcher o = ParserPatterns.replies.matcher(read);
                     o.matches();
-                    this.queue.put(new Upload(o.group("result"), splits[5]));
-                    System.out.println(o.group("result"));
+                    if(o.group("status").equals("ok"))
+                        this.queue.put(new Upload(o.group("result"), splits[5]));
+                    this.format_output(read, splits[0]);
                     break;
                 }
                 System.out.println("Invalid or non existent file");
@@ -105,7 +146,7 @@ public class Client {
                 out.println(parse.unwrap());
                 out.flush();
                 read = in.readLine();
-                System.out.println(read);
+                this.format_output(read, splits[0]);
                 break;
             case "search":
             case "download":
@@ -117,7 +158,7 @@ public class Client {
                 out.println(parse.unwrap());
                 out.flush();
                 read = in.readLine();
-                System.out.println(read);
+                this.format_output(read, splits[0]);
                 break;
         }
     }
