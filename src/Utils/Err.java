@@ -1,6 +1,7 @@
 package Utils;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Err<V, E> implements Result<V, E> {
@@ -53,6 +54,11 @@ public class Err<V, E> implements Result<V, E> {
 
     public E unwrap_err() {
         return this.err;
+    }
+
+
+    public Result<V, E> also(Consumer<V> f) {
+        return this;
     }
 
     public <R> Result<R, E> and_then(Function<? super V, ? extends Result<R, E>> f) {

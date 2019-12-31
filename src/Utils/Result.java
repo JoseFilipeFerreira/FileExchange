@@ -1,6 +1,7 @@
 package Utils;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface Result<V, E> {
@@ -38,6 +39,8 @@ public interface Result<V, E> {
     V unwrap();
 
     E unwrap_err();
+
+    Result<V, E> also(Consumer<V> f);
 
     <R> Result<R, E> and_then(Function<? super V, ? extends Result<R, E>> f);
 }

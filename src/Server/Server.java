@@ -8,6 +8,7 @@ public class Server {
     public static void main(String[] args) {
         NotificationCenter nc = new NotificationCenter();
         MusicCenter mc = new MusicCenter(nc);
+        DwnlMgr man = new DwnlMgr();
 
         try {
             ServerSocket socket = new ServerSocket(12345);
@@ -15,7 +16,7 @@ public class Server {
             while(true) {
                 Socket cl_socket = socket.accept();
                 Socket cl_notify = notify.accept();
-                ServerThread st = new ServerThread(cl_socket, mc);
+                ServerThread st = new ServerThread(cl_socket, mc, man);
                 Notifyd nd = new Notifyd(cl_notify, nc);
 
                 Thread t = new Thread(st);

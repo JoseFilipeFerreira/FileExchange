@@ -1,6 +1,7 @@
 package Utils;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Ok<V, E> implements Result<V, E> {
@@ -49,6 +50,11 @@ public class Ok<V, E> implements Result<V, E> {
 
     public V unwrap() {
         return this.value;
+    }
+
+    public Result<V, E> also(Consumer<V> f) {
+        f.accept(this.value);
+        return this;
     }
 
     public E unwrap_err() {

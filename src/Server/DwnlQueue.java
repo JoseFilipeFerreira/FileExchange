@@ -1,37 +1,30 @@
 package Server;
 
-import Utils.Defaults;
 import Utils.Result;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class DwnlQueue {
-    private ArrayList<Download> queue;
+public class DwnlQueue implements Runnable {
+    private List<Download> queue;
     private ReentrantLock lock;
-    private Condition full;
     private Condition empty;
+    private DwnlMgr man;
 
-    DwnlQueue() {
+    DwnlQueue(DwnlMgr man) {
         this.queue = new ArrayList<Download>();
         this.lock = new ReentrantLock();
-        this.full = this.lock.newCondition();
         this.empty = this.lock.newCondition();
+        this.man = man;
     }
 
     void put(Download a) {
         this.lock.lock();
-        try {
-            while(this.queue.size() >= Defaults.MAXDOWN)
-                this.full.await();
-            this.queue.add(a);
-            this.empty.signal();
-        }
-        catch(InterruptedException ignored) {}
-        finally {
-            this.lock.unlock();
-        }
+        this.queue.add(a);
+        this.empty.signal();
+        this.lock.unlock();
     }
 
     Result<Download, String> get() {
@@ -40,7 +33,6 @@ public class DwnlQueue {
             while(this.queue.isEmpty())
                 this.empty.await();
             Download a = this.queue.remove(0);
-            this.full.signal();
             return Result.Ok(a);
         }
         catch(InterruptedException e) {
@@ -48,6 +40,17 @@ public class DwnlQueue {
         }
         finally {
             this.lock.unlock();
+        }
+    }
+
+    public void run() {
+        while(true) {
+            Result<Download, String> dwnld = this.get();
+            if(dwnld.is_ok()) {
+                man.start_download();
+                dwnld.unwrap().download();
+                man.finish_download();
+            }
         }
     }
 }

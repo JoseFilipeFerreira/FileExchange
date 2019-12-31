@@ -11,4 +11,8 @@ public class Counter {
         c++;
         return c;
     }
+
+    public synchronized int value() {
+       return c;
+    }
 }
