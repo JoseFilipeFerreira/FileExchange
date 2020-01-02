@@ -93,7 +93,7 @@ public class Client implements Runnable {
                     System.out.println("User added: " + out.group("result"));
                     break;
                 case "download":
-//                    System.out.println("Music " + out.group("result") + " was added to your download queue");
+                    System.out.println("Music " + out.group("result") + " was added to your download queue");
                     break;
                 case "search":
                     Matcher content = ParserPatterns.list_objetcs.matcher(out.group("result"));
