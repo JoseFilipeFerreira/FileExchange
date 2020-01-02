@@ -15,7 +15,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Client {
+public class Client implements Runnable {
 
     private Socket request;
     private Socket notify;
@@ -117,6 +117,14 @@ public class Client {
         Result<String, String> parse = this.format(splits);
         String read;
         switch(splits[0]) {
+            case "help":
+                System.out.println("Login : `login user passwd`");
+                System.out.println("Add user: `add_user user passwd`");
+                System.out.println("Add music: `add_music title artist year 'tag1','tag2',... path/to/file`");
+                System.out.println("Download: `download music_id`");
+                System.out.println("Search songs: `search tag`");
+                System.out.println("To show this info again: `help`");
+                break;
             case "add_music":
                 if(splits.length != 6) break;
                 if(parse.is_err()) {
@@ -163,6 +171,43 @@ public class Client {
         }
     }
 
+    public Client() {
+            boolean weDidIt = false;
+            ServerSocket s = null;
+            int port = 0;
+            while(!weDidIt) {
+                try {
+                    port = new Random().nextInt(65535);
+                    s = new ServerSocket(port);
+                    weDidIt = true;
+                    try {
+                        this.request = new Socket("0.0.0.0", 12345);
+                        this.in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+                        this.out = new PrintWriter(request.getOutputStream());
+
+                        this.notify = new Socket("0.0.0.0", 12346);
+                        this.not = new NotifyReciver(notify);
+                        new Thread(this.not).start();
+
+                        this.port = port;
+                        out.println("{type='connect', content=['" + port + "',]}");
+                        out.flush();
+
+                        in.readLine();
+                        this.file_transfer = s.accept();
+
+                        this.queue = new UpldQueue(this.file_transfer.getOutputStream());
+                        new Thread(this.queue).start();
+
+                        this.dl = new DwnlThread(this.file_transfer.getInputStream());
+                        new Thread(this.dl).start();
+                    } catch (IOException ignored){}
+                }
+                catch(IOException ignored) {
+                }
+            }
+    }
+
     public static void main(String[] args) {
         try {
             boolean weDidIt = false;
@@ -180,6 +225,8 @@ public class Client {
 
             BufferedReader user = new BufferedReader(new InputStreamReader(System.in));
 
+            c.handle_input("help");
+            System.out.println("In order to use the system please login using the command above");
             String user_read;
             while((user_read = user.readLine()) != null) {
                 c.handle_input(user_read);
@@ -187,6 +234,17 @@ public class Client {
         }
         catch(IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void run() {
+        for(int i = 0; i < 4; i++) {
+            try {
+                this.handle_input("download 1");
+            }
+            catch(IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

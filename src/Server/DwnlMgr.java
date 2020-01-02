@@ -20,8 +20,9 @@ public class DwnlMgr {
     void start_download() {
         try {
             this.lock.lock();
-            while(this.current_downloads >= Defaults.MAXDOWN)
+            while(this.current_downloads >= Defaults.MAXDOWN) {
                 this.full.await();
+            }
             this.current_downloads++;
         }
         catch(InterruptedException ignored) {}

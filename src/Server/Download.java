@@ -6,27 +6,33 @@ import java.io.*;
 
 public class Download {
     private Music m;
-    private OutputStream stream;
+    private DataOutputStream stream;
 
     Download(Music m, OutputStream stream) {
         this.m = m;
-        this.stream = stream;
+        this.stream = new DataOutputStream(stream);
     }
 
     public void download() {
-        PrintWriter pr = new PrintWriter(stream);
         File f = new File(m.get_path());
         try {
             FileInputStream fr = new FileInputStream(f);
-            pr.println(m.get_id());
-            long n_writes = f.length()/ Defaults.MAXSIZE;
-            pr.println(n_writes);
-            pr.flush();
-            byte[] buffer = new byte[Defaults.MAXSIZE];
-            for(long i = 0; i < n_writes && fr.read(buffer) > 0; i++)
-                stream.write(buffer);
+            stream.writeLong(m.get_id());
+            long remaning = f.length();
+            long n_reads = (f.length()/Defaults.MAXSIZE) - 1;
+            stream.writeLong(remaning);
+            stream.writeLong(n_reads);
             stream.flush();
+            byte[] buffer = new byte[Defaults.MAXSIZE];
+            int r;
+            while((r = fr.read(buffer)) > 0) {
+                stream.writeInt(r);
+                stream.write(buffer, 0, r);
+                stream.flush();
+            }
+            stream.writeInt(0);
             fr.close();
+            stream.flush();
         }
         catch(IOException ignored) {}
     }
