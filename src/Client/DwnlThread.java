@@ -1,5 +1,6 @@
 package Client;
 
+import Server.Download;
 import Utils.Defaults;
 
 import java.io.*;
@@ -8,27 +9,31 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class DwnlThread implements Runnable {
-   private InputStream in;
+   private DataInputStream in;
 
     DwnlThread(InputStream in) {
-        this.in = in;
+        this.in = new DataInputStream(in);
     }
 
-   public void run() {
-       byte[] fContent = new byte[Defaults.MAXSIZE];
+    public void run() {
+        byte[] fContent = new byte[Defaults.MAXSIZE];
         try {
-            BufferedReader a = new BufferedReader(new InputStreamReader(in));
-            String read;
-            while((read = a.readLine()) != null) {
-                File file = new File(read);
-                int n_reads = Integer.parseInt(a.readLine());
-                System.out.println("Music" + read + " donwnload is starting");
+            while(true) {
+                long id = in.readLong();
+                File file = new File(String.valueOf(id));
+                System.out.println("Music " + id + " donwnload is starting");
+                long size = in.readLong();
+                long n_reads = in.readLong();
                 FileOutputStream f = new FileOutputStream(file, true);
-                for(int i = 0; i < n_reads && in.read(fContent, 0, Defaults.MAXSIZE) > 0; i++)
+                int reads = 1;
+                for(long i = 0; reads > 0; i++) {
+                    reads = in.readInt();
+                    in.readNBytes(fContent, 0, reads);
                     f.write(fContent);
+                }
                 f.flush();
                 f.close();
-                System.out.println("Music " + read + " finished downloading");
+                System.out.println("Music " + id + " finished downloading");
             }
         }
         catch(IOException ignored) {}

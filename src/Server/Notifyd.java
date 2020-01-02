@@ -21,7 +21,7 @@ public class Notifyd implements Runnable {
             while(true) {
                 this.notification.get_notify();
                 Music m = this.notification.get_music();
-                p.println("{type:'notify', content=['" + m + "',]}");
+                p.println("{type='notify', content=['" + m + "',]}");
                 p.flush();
             }
         }
