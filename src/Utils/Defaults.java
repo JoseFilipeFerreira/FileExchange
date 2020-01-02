@@ -1,7 +1,7 @@
 package Utils;
 
 public class Defaults {
-    public static int MAXDOWN = 10;
+    public final static int MAXDOWN = 10;
 
-    public static int MAXSIZE = 4096;
+    public final static int MAXSIZE = 4096;
 }
