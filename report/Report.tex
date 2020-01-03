@@ -18,6 +18,7 @@ linkcolor=black}
 \usepackage{authblk}
 \usepackage{verbatim}
 \usetikzlibrary{positioning,automata,decorations.markings}
+\AfterEndEnvironment{figure}{\noindent\ignorespaces}
 
 \begin{document}
 
@@ -44,50 +45,44 @@ linkcolor=black}
 \tableofcontents
 
 \pagebreak
-
 \chapter{Introdução}
-
 O objetivo deste projeto é construir um sistema de partilha de ficheiros de 
 musica, de forma a ser capaz de gerir os ficheiros de musica, bem como todos
 os meta-dados a eles associados, aplicando uma arquitetura 
 \textit{Cliente, Servidor} com recurso a \textit{Sockets TCP} e \textit{Threads},
-aplicando assim os conhecimentos sobre Sistemas Distribuidos adquiridos nas 
+aplicando assim os conhecimentos sobre Sistemas Distribuídos adquiridos nas 
 aulas desta UC\@.
 Como objetivo, é necessário implementar um sistema que permita a utilização 
-concorrente de um servidor por vários clientes, assegurando a consistencia
-de toda a informacao introduzida no sistema a qualquer cliente que esteja
+concorrente de um servidor por vários clientes, assegurando a consistência
+de toda a informação introduzida no sistema a qualquer cliente que esteja
 a fazer uso da mesma.\\
-Ao longo deste relatorio vamos descrever as nossas abordagens a estes problemas.
+Ao longo deste relatório vamos descrever as nossas abordagens a estes problemas.
 
 \chapter{Arquitetura e Solução do Projeto}
-
 \section{Servidor}
-
-No modulo Servidor sao tratadas todas as conexoes e pedidos dos clientes, bem
-como a gestao da informacao relativa a logins e a musicas armazenadas de 
-forma a que seja possivel um acesso concorrente entre as diversas 
-\textit{Threads} lancadas para comportar varios clientes em simultaneo.
-A rececao, envio e armazenamento dos ficheiros de musica e tambem mantido aqui,
-tendo em vista uma boa gestao de recursos, tanto ao nivel de memoria bem como
-ao nivel do \textit{CPU}.\\
-De forma a conseguir um servidor capaz de lidar com varios clientes em
-simultaneo, este e dividido em varias \textit{Threads}, sendo, para cada
+No modulo Servidor são tratadas todas as conexões e pedidos dos clientes, bem
+como a gestão da informação relativa a logins e a musicas armazenadas de 
+forma a que seja possível um acesso concorrente entre as diversas 
+\textit{Threads} lançadas para comportar vários clientes em simultâneo.
+A recessão, envio e armazenamento dos ficheiros de musica e também mantido aqui,
+tendo em vista uma boa gestão de recursos, tanto ao nível de memoria bem como
+ao nível do \textit{CPU}.\\
+De forma a conseguir um servidor capaz de lidar com vários clientes em
+simultâneo, este e dividido em varias \textit{Threads}, sendo, para cada
 cliente que se tente conectar, criada uma para receber e responder aos
-pedidos vindos do cliente, uma para enviar notificacoes sobre novas musicas
+pedidos vindos do cliente, uma para enviar notificações sobre novas musicas
 adicionadas, uma para gerir os \textit{Downloads} requisitados, e uma ultima
 para receber os ficheiros de musica enviados pelo respetivo cliente.
 
 \section{Cliente}
-
 No modulo Cliente e efetuada a ponte entre o utilizador e o servidor, sendo 
 capaz de efetuar pedidos pedidos ao servidor e apresentar ao utilizador a
 respetiva resposta aos pedidos efetuados. Esta preparado para complementar
-o servidor no envio e rececao de ficheiros de musica.
+o servidor no envio e recessão de ficheiros de musica.
 
-\section{Comunicacao Cliente-Servidor}
-
+\section{Comunicação Cliente-Servidor}
 \subsection{Pedidos e respostas aos pedidos}
-Para efetuar a comunicacao entre o cliente e o servidor, fixamos
+Para efetuar a comunicação entre o cliente e o servidor, fixamos
 um formato de texto, inspirado no formato \textit{JSON}, que no caso
 de pedidos ao servidor tem o formato \ref{inputformat}, onde o 
 \textit{request\_type} corresponde ao tipo de pedido que o cliente quer
@@ -100,11 +95,10 @@ efetuar, por exemplo, para adicionar uma musica iria ser \textit{add\_music}.\\
     \caption{Formato dos pedidos}
     \label{inputformat}
 \end{figure}
-
 As respostas a pedidos segue o formato \ref{outputformat}, onde o 
 \textit{status} pode ser \textit{ok} ou \textit{failed}, e o \textit{res}
-e a resposta ao pedido efetuado, ou a razao pela qual nao foi possivel 
-efetua-lo.
+e a resposta ao pedido efetuado, ou a razão pela qual não foi possível 
+efectuá-lo.
 
 \begin{figure}[H]
     \begin{verbatim}
@@ -113,33 +107,29 @@ efetua-lo.
     \caption{Formato das repostas}
     \label{outputformat}
 \end{figure}
-
 Para comunicar com o cliente, linhas de texto com este formato sao transmitidos
-atraves de uma socket criada para o efeito.
+através de uma socket criada para o efeito.
 
 \subsection{Uploads e Downloads}
-
-Para efetuar a transferencia de ficheiros de e para o servidor, e criada uma
-\textit{ServerSocket} por cada cliente, numa porta aleatoria, e posteriormente
-e enviada ao servidor a informacao para ele se conectar a essa \textit{Socket}.
-Nesta \textit{socket} apenas sao enviados binarios correspondentes ao ficheiro
-de musica, em partes de um tamanho maximo definido. Embora sejam possiveis
+Para efetuar a transferência de ficheiros de e para o servidor, e criada uma
+\textit{ServerSocket} por cada cliente, numa porta aleatória, e posteriormente
+e enviada ao servidor a informação para ele se conectar a essa \textit{Socket}.
+Nesta \textit{socket} apenas sao enviados binários correspondentes ao ficheiro
+de musica, em partes de um tamanho máximo definido. Embora sejam possíveis
 downloads e uploads concorrentes entre clientes, um cliente apenas pode efetuar
-um download e um upload em simultaneo.
+um download e um upload em simultâneo.
 
-\subsection{Notificacao de novas musicas}
-
+\subsection{Notificação de novas musicas}
 Quando e adicionada uma nova musica ao sistema, esta e adicionada a uma queue de
-notificacoes que sera utilizada por cada \textit{thread} de notificacoes, 
-enviando assim uma notificacao a todos os clientes que estejam ligados ao
+notificações que será utilizada por cada \textit{thread} de notificações, 
+enviando assim uma notificação a todos os clientes que estejam ligados ao
 servidor no momento.
 
 \chapter{Conclusão}
-
 Para concluir, conseguimos cumprir todos os requisitos propostos criando no processo um
 sistema de troca de ficheiros de musica capaz de utilizar uma arquitetura 
 \textit{Cliente, Servidor} que suporta vários de clientes.
 Como trabalho futuro, gostaríamos de permitir a cada cliente ter mais do que um
-download e upload a correr em simultaneo.
+download e upload a correr em simultâneo.
 
 \end{document}
