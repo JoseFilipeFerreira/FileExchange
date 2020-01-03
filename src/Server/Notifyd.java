@@ -18,10 +18,10 @@ public class Notifyd implements Runnable {
     public void run() {
         try {
             PrintWriter p = new PrintWriter(socket.getOutputStream());
+            int pos = this.notification.get_pos();
             while(true) {
-                this.notification.get_notify();
-                Music m = this.notification.get_music();
-                p.println("{type='notify', content=['" + m + "',]}");
+                Music m = this.notification.get_music(pos++);
+                p.println("{type='notify', content=['" + m + "';]}");
                 p.flush();
             }
         }

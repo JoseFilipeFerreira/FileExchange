@@ -38,7 +38,7 @@ public class Client implements Runnable {
             new Thread(this.not).start();
 
             this.port = port;
-            out.println("{type='connect', content=['" + port + "',]}");
+            out.println("{type='connect', content=['" + port + "';]}");
             out.flush();
 
             in.readLine();
@@ -56,21 +56,21 @@ public class Client implements Runnable {
         switch(splits[0]) {
             case "download":
                 if(splits.length != 2 || !Pattern.matches("[0-9].*", splits[1])) break;
-                return Result.Ok("{type='download', content=['" + splits[1] + "',]}");
+                return Result.Ok("{type='download', content=['" + splits[1] + "';]}");
             case "add_music":
                 if(splits.length != 6) break;
                 return Result.Ok("{type='add_music', content=['Music{title='" + splits[1]
                                          + "':artist='" + splits[2]
                                          + "':year=" + splits[3]
-                                         + ":tags=[" + splits[4] +"]}',]}");
+                                         + ":tags=[" + splits[4] +"]}';]}");
             case "login":
             case "add_user":
                 if(splits.length != 3) break;
                 return Result.Ok("{type='" + splits[0] + "', content=['User{name='" + splits[1]
-                                         + "':passwd='" + splits[2] + "'}',]}");
+                                         + "':passwd='" + splits[2] + "'}';]}");
             case "search":
                 if(splits.length != 2) break;
-                return Result.Ok("{type='search', content=['" + splits[1] + "',]}");
+                return Result.Ok("{type='search', content=['" + splits[1] + "';]}");
 
         }
         return Result.Err("Error: Wrong format request");
@@ -190,7 +190,7 @@ public class Client implements Runnable {
                         new Thread(this.not).start();
 
                         this.port = port;
-                        out.println("{type='connect', content=['" + port + "',]}");
+                        out.println("{type='connect', content=['" + port + "';]}");
                         out.flush();
 
                         in.readLine();
@@ -238,9 +238,9 @@ public class Client implements Runnable {
     }
 
     public void run() {
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < 1; i++) {
             try {
-                this.handle_input("download 1");
+                this.handle_input("add_music " + port + " roo 2000 'tag', /home/hitler/example.mp3");
             }
             catch(IOException e) {
                 e.printStackTrace();

@@ -42,7 +42,7 @@ class MusicCenter {
                     .filter(x -> x.contains_tag(tag))
                     .forEach(x -> res.append("'")
                             .append(x.toString())
-                            .append("',"));
+                            .append("';"));
             return res.append("]")
                     .toString();
         }

@@ -13,8 +13,8 @@ public class ParserPatterns {
 
 
     public static Pattern complete_music = Pattern.compile("Music\\{id='(?<id>[0-9]+)'" +
-                                                                   ":title='(?<title>.*)'" +
-                                                                   ":artist='(?<artist>.*)'" +
+                                                                   ":title='(?<title>.*?)'" +
+                                                                   ":artist='(?<artist>.*?)'" +
                                                                    ":year=(?<year>[0-9]{4})" +
                                                                    ":downloads=(?<downloads>[0-9]+)" +
                                                                    ":tags=\\[(?<tags>.*)]}");
@@ -23,7 +23,7 @@ public class ParserPatterns {
 
     public static Pattern requests = Pattern.compile("\\{type='(?<type>.*)', content=\\[(?<content>.*)]}$");
 
-    public static Pattern list_objetcs = Pattern.compile("'(.*)',");
+    public static Pattern list_objetcs = Pattern.compile("'(.*?)';");
 
     public static Pattern replies = Pattern.compile("\\{status='(?<status>.*)', result='(?<result>.*)'}");
 }
