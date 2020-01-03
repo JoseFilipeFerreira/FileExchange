@@ -27,3 +27,9 @@ hs_err_pid*
 *.iml
 out/
 META-INF/
+
+#LaTeX
+*.aux
+*.out
+*.pdf
+*.toc
