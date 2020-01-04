@@ -240,7 +240,7 @@ public class Client implements Runnable {
     public void run() {
         for(int i = 0; i < 1; i++) {
             try {
-                this.handle_input("add_music " + port + " roo 2000 'tag', /home/hitler/example.mp3");
+                this.handle_input("search tag");
             }
             catch(IOException e) {
                 e.printStackTrace();
