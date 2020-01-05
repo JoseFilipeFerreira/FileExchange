@@ -1,0 +1,137 @@
+\documentclass[a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{hyperref}
+\usepackage{a4wide}
+\hypersetup{pdftitle={Sistema de Troca de Ficheiros},
+pdfauthor={José Ferreira, João Teixeira, Miguel Solino},
+colorlinks=true,
+urlcolor=blue,
+linkcolor=black}
+\usepackage{subcaption}
+\usepackage[cache=false]{minted}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{appendix}
+\usepackage{tikz}
+\usepackage{authblk}
+\usepackage{verbatim}
+\usetikzlibrary{positioning,automata,decorations.markings}
+\AfterEndEnvironment{figure}{\noindent\ignorespaces}
+
+\begin{document}
+
+\title{Troca de Ficheiros\\ 
+\large Grupo Nº 34}
+\author{José Ferreira (A83683) \and João Teixeira (A85504) \and Miguel Solino (A)}
+\date{\today}
+
+\begin{center}
+    \begin{minipage}{0.75\linewidth}
+        \centering
+        \includegraphics[width=0.4\textwidth]{eng.jpeg}\par\vspace{1cm}
+        \vspace{1.5cm}
+        \href{https://www.uminho.pt/PT}
+        {\color{black}{\scshape\LARGE Universidade do Minho}} \par
+        \vspace{1cm}
+        \href{https://www.di.uminho.pt/}
+        {\color{black}{\scshape\Large Departamento de Informática}} \par
+        \vspace{1.5cm}
+        \maketitle
+    \end{minipage}
+\end{center}
+
+\tableofcontents
+
+\pagebreak
+\chapter{Introdução}
+O objetivo deste projeto é desenvolver um sistema de partilha de ficheiros de 
+música que seja capaz de gerir os ficheiros assim como os respetivos
+meta-dados.\\
+A arquitetura a ser utilizada deve seguir a lógica \textit{Cliente, Servidor}
+com recurso a \textit{Sockets TCP} e \textit{Threads}, aplicando, assim, os
+conhecimentos sobre Sistemas Distribuídos leccionados durante as aulas da UC.\\
+Como objetivo, é necessário implementar um sistema que permita a utilização 
+concorrente de um servidor por vários clientes, assegurando a consistência
+de toda a informação introduzida no sistema para qualquer cliente que esteja
+a fazer uso da mesma.\\
+Ao longo deste relatório vamos descrever as nossas abordagens a estes problemas.
+
+\chapter{Arquitetura e Solução do Projeto}
+\section{Servidor}
+No modulo Servidor são tratadas todas as conexões e pedidos dos clientes,
+garantindo a capacidade de suportar vários clientes em simultâneo.\\
+Para além disso, é tratada a gestão da informação relativa a logins e a
+músicas armazenadas de forma a que seja possível um acesso concorrente entre as
+diversas \textit{Threads} lançadas.\\
+A recessão, envio e armazenamento dos ficheiros de música e também tratado neste
+modulo, tendo em vista uma boa gestão de recursos, tanto a nível de memoria
+como a nível do \textit{CPU}.\\
+De forma a conseguir um servidor capaz de lidar com vários clientes em
+simultâneo, este é dividido em varias \textit{Threads}, sendo que é criada uma
+nova para tratar cada cliente que se tente conectar, uma para receber e
+responder aos pedidos vindos do cliente, uma para enviar notificações sobre
+novas músicas adicionadas, uma para gerir os \textit{Downloads} requisitados, e
+uma ultima para receber os ficheiros de música enviados pelo respetivo cliente.
+
+\section{Cliente}
+No modulo Cliente é efetuada a ponte entre o utilizador e o servidor, sendo 
+capaz de efetuar pedidos ao servidor e apresentar ao utilizador a resposta aos
+pedidos efetuados. Este está preparado para complementar o servidor no envio e
+recessão de ficheiros de música.
+
+\section{Comunicação Cliente-Servidor}
+\subsection{Pedidos e respostas aos pedidos}
+Para efetuar a comunicação entre o cliente e o servidor fixamos
+um formato de texto, inspirado no formato \textit{JSON}, que no caso
+de pedidos ao servidor tem o formato \ref{inputformat}, onde o 
+\textit{request\_type} corresponde ao tipo de pedido que o cliente quer
+efetuar.\\
+Por exemplo, para adicionar uma música iria ser \textit{add\_music}.\\
+
+\begin{figure}[H]
+    \begin{verbatim}
+        {type='request\_type', content=['obj1','obj2',...]}
+    \end{verbatim}
+    \caption{Formato dos pedidos}
+    \label{inputformat}
+\end{figure}
+As respostas a pedidos segue o formato \ref{outputformat}.\\
+Neste, o \textit{status} pode ser \textit{ok} ou \textit{failed} e o
+\textit{res} é a resposta ao pedido efetuado ou a razão pela qual não foi
+possível  efectuá-lo.
+
+\begin{figure}[H]
+    \begin{verbatim}
+        {status='status', result='res'}
+    \end{verbatim}
+    \caption{Formato das repostas}
+    \label{outputformat}
+\end{figure}
+Para comunicar com o cliente, linhas de texto com este formato são transmitidos
+através de uma socket criada para o efeito.
+
+\subsection{Uploads e Downloads}
+Para efetuar a transferência de ficheiros de e para o servidor, é criada uma
+\textit{ServerSocket} por cada cliente, numa porta aleatória, e posteriormente
+e enviada ao servidor a informação para ele se conectar a essa \textit{Socket}.
+Nesta \textit{socket} apenas são enviados binários correspondentes ao ficheiro
+de música, em partes de um tamanho máximo definido. Embora sejam possíveis
+downloads e uploads concorrentes entre clientes, um cliente apenas pode efetuar
+um download e um upload em simultâneo.
+
+\subsection{Notificação de novas músicas}
+Quando é adicionada uma nova música ao sistema, esta é adicionada a uma
+\textit{queue} de notificações que será utilizada por cada \textit{thread} de
+notificações, enviando assim uma notificação a todos os clientes que estejam
+ligados ao servidor no momento.
+
+\chapter{Conclusão}
+Para concluir, conseguimos cumprir todos os requisitos propostos, criando no processo um
+sistema de troca de ficheiros de música capaz de utilizar uma arquitetura 
+\textit{Cliente, Servidor} que suporta vários clientes em simultâneo.
+Como trabalho futuro, gostaríamos de permitir a cada cliente ter mais do que um
+download e upload a correr em simultâneo.
+
+\end{document}
